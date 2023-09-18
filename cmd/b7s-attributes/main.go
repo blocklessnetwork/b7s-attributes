@@ -1,10 +1,9 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"log"
 	"os"
+	"reflect"
 
 	"github.com/spf13/pflag"
 
@@ -37,28 +36,52 @@ func run() int {
 
 	pflag.Parse()
 
-	attributes, err := env.ReadAttributes(flagPrefix, flagLimit, flagIgnore)
-	if err != nil {
-		if !errors.Is(err, env.ErrTooManyAttributes) {
-			log.Printf("could not retrieve attributes from the environment: %s", err)
-			return failure
-		}
+	log.SetFlags(0)
 
-		if flagStrict {
-			log.Printf("too many arguments set. remove some or rerun with strict mode turned off")
-			return failure
-		}
+	attrs, err := env.ReadAttributes(flagPrefix, flagIgnore)
+	if err != nil {
+		log.Printf("could not retrieve attributes from the environment: %s", err)
+		return failure
+
 	}
 
-	if len(attributes) == 0 {
+	if len(attrs) == 0 {
 		return success
 	}
 
-	log.Printf("%v attributes retrieved", len(attributes))
+	if uint(len(attrs)) > flagLimit {
 
-	for name, value := range attributes {
-		fmt.Printf("%v: %v\n", name, value)
+		if flagStrict {
+			log.Printf("too many attributes set. remove some or re-run with 'strict' mode turned off")
+			return failure
+		}
+
+		attrs = attrs[:flagLimit]
 	}
+
+	log.Printf("%v attributes retrieved", len(attrs))
+
+	encoded, err := attributes.Encode(attrs)
+	if err != nil {
+		log.Printf("could not encode attributes: %s", err)
+		return failure
+	}
+
+	decoded, err := attributes.Decode(encoded)
+	if err != nil {
+		log.Printf("could not decode attributes: %s", err)
+		return failure
+	}
+
+	same := reflect.DeepEqual(attrs, decoded)
+	if !same {
+		log.Printf("attributes not equal!")
+		log.Printf("orig: %+#v", attrs)
+		log.Printf("decoded: %+#v", decoded)
+		return failure
+	}
+
+	log.Printf("original and decoded data are the same")
 
 	return success
 }
