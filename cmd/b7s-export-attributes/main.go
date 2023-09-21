@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"reflect"
 
 	"github.com/spf13/pflag"
 
@@ -23,16 +22,20 @@ func main() {
 func run() int {
 
 	var (
-		flagPrefix string
-		flagLimit  uint
-		flagIgnore []string
-		flagStrict bool
+		flagPrefix     string
+		flagLimit      uint
+		flagIgnore     []string
+		flagStrict     bool
+		flagExport     string
+		flagSigningKey string
 	)
 
 	pflag.StringVar(&flagPrefix, "prefix", attributes.Prefix, "prefix node attributes environment variables have")
 	pflag.UintVarP(&flagLimit, "limit", "l", attributes.Limit, "number of node attributes to use")
 	pflag.StringSliceVarP(&flagIgnore, "ignore", "i", []string{}, "environment variables to skip")
 	pflag.BoolVar(&flagStrict, "strict", true, "stop execution if there are too many attributes")
+	pflag.StringVarP(&flagExport, "export", "e", "", "file to export attributes to")
+	pflag.StringVarP(&flagSigningKey, "key", "k", "", "key to be used for signing (optional")
 
 	pflag.Parse()
 
@@ -46,6 +49,7 @@ func run() int {
 	}
 
 	if len(attrs) == 0 {
+		log.Printf("no attributes found")
 		return success
 	}
 
@@ -61,27 +65,24 @@ func run() int {
 
 	log.Printf("%v attributes retrieved", len(attrs))
 
-	encoded, err := attributes.Encode(attrs)
+	att := attributes.Attestation{
+		Attributes: attrs,
+	}
+
+	export, err := os.Create(flagExport)
 	if err != nil {
-		log.Printf("could not encode attributes: %s", err)
+		log.Printf("could not open export file: %s", err)
 		return failure
 	}
+	defer export.Close()
 
-	decoded, err := attributes.Decode(encoded)
+	err = attributes.Export(export, att)
 	if err != nil {
-		log.Printf("could not decode attributes: %s", err)
+		log.Printf("could not export attestation: %s", err)
 		return failure
 	}
 
-	same := reflect.DeepEqual(attrs, decoded)
-	if !same {
-		log.Printf("attributes not equal!")
-		log.Printf("orig: %+#v", attrs)
-		log.Printf("decoded: %+#v", decoded)
-		return failure
-	}
-
-	log.Printf("original and decoded data are the same")
+	log.Printf("attributes successfully exported")
 
 	return success
 }

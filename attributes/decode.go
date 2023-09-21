@@ -30,10 +30,6 @@ func deserialize(data []byte) ([]Attribute, error) {
 
 		line := string(rec)
 
-		if line == "" {
-			continue
-		}
-
 		fields := strings.SplitN(line, "=", 2)
 
 		if len(fields) != 2 {

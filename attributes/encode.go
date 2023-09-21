@@ -24,11 +24,16 @@ func Encode(attributes []Attribute) ([]byte, error) {
 func serialize(attributes []Attribute) ([]byte, error) {
 
 	var buf bytes.Buffer
-	for _, attr := range attributes {
+	for i, attr := range attributes {
 
 		_, err := buf.WriteString(fmt.Sprintf("%s=%s", attr.Name, attr.Value))
 		if err != nil {
 			return nil, fmt.Errorf("could not write attribute data: %w", err)
+		}
+
+		// If this is the last attribute, no need for the separator.
+		if i == len(attributes)-1 {
+			break
 		}
 
 		err = buf.WriteByte(binaryRecordSeparator)

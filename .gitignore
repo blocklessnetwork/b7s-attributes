@@ -1,1 +1,2 @@
-cmd/b7s-attributes/b7s-attributes
+cmd/b7s-export-attributes/b7s-export-attributes
+cmd/b7s-import-attributes/b7s-import-attributes
