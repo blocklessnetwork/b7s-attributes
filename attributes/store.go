@@ -39,8 +39,7 @@ func Export(writer io.Writer, att Attestation) error {
 			return fmt.Errorf("could not serialize node signature: %w", err)
 		}
 
-		// Add the separator and the signature data.
-		data = append(data, binaryRecordSeparator)
+		// Add signature data. Don't add the separator, because we'll be able to identify this data in the file by offset alone.
 		data = append(data, sig...)
 	}
 

@@ -39,7 +39,7 @@ func (n Attestation) Valid() error {
 func (n *Signature) serialize() ([]byte, error) {
 
 	var buf bytes.Buffer
-	_, err := buf.WriteString(fmt.Sprintf("%s%c%s%c", n.Signer.String(), binaryRecordSeparator, n.Signature, binaryRecordSeparator))
+	_, err := buf.WriteString(fmt.Sprintf("%s%c%s", n.Signer.String(), binaryRecordSeparator, n.Signature))
 	if err != nil {
 		return nil, fmt.Errorf("could not write attribute data: %w", err)
 	}
