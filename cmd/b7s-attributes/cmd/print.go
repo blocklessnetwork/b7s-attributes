@@ -6,9 +6,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/blocklessnetwork/b7s-attributes/attributes"
 	"github.com/spf13/cobra"
+
+	"github.com/blocklessnetwork/b7s-attributes/attributes"
 )
+
+var flagsPrint struct {
+	input string
+}
 
 func runPrint(_ *cobra.Command, _ []string) error {
 

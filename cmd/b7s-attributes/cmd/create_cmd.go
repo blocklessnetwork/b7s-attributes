@@ -6,14 +6,6 @@ import (
 	"github.com/blocklessnetwork/b7s-attributes/attributes"
 )
 
-var flagsCreate struct {
-	prefix string
-	limit  uint
-	ignore []string
-	strict bool
-	output string
-}
-
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:          "create",

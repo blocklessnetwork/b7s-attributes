@@ -9,7 +9,7 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "b7s-attributes",
-	Short: "This is a control panel where you can list, create and update your b7s node attribute file(s).",
+	Short: "This is a control panel where you can manage your b7s node attribute file(s).",
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
 	},

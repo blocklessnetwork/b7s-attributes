@@ -4,10 +4,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var flagsPrint struct {
-	input string
-}
-
 // printCmd represents the create command
 var printCmd = &cobra.Command{
 	Use:          "print",

@@ -9,6 +9,13 @@ import (
 	"github.com/blocklessnetwork/b7s-attributes/env"
 )
 
+var flagsShow struct {
+	prefix string
+	limit  uint
+	ignore []string
+	strict bool
+}
+
 func runShow(_ *cobra.Command, _ []string) error {
 
 	attrs, err := env.ReadAttributes(flagsShow.prefix, flagsShow.ignore)

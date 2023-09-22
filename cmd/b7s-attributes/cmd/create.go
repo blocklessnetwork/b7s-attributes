@@ -11,6 +11,14 @@ import (
 	"github.com/blocklessnetwork/b7s-attributes/env"
 )
 
+var flagsCreate struct {
+	prefix string
+	limit  uint
+	ignore []string
+	strict bool
+	output string
+}
+
 func runCreate(_ *cobra.Command, _ []string) error {
 
 	attrs, err := env.ReadAttributes(flagsCreate.prefix, flagsCreate.ignore)

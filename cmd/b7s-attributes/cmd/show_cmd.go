@@ -6,13 +6,6 @@ import (
 	"github.com/blocklessnetwork/b7s-attributes/attributes"
 )
 
-var flagsShow struct {
-	prefix string
-	limit  uint
-	ignore []string
-	strict bool
-}
-
 var showCmd = &cobra.Command{
 	Use:          "show",
 	Short:        "Display current node attributes",
