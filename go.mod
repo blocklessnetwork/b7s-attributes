@@ -2,14 +2,18 @@ module github.com/blocklessnetwork/b7s-attributes
 
 go 1.21.0
 
-require github.com/spf13/pflag v1.0.5
+require (
+	github.com/libp2p/go-libp2p v0.31.0
+	github.com/spf13/cobra v1.7.0
+	github.com/spf13/pflag v1.0.5
+)
 
 require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/ipfs/go-cid v0.4.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
-	github.com/libp2p/go-libp2p v0.31.0 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/multiformats/go-base32 v0.1.0 // indirect
