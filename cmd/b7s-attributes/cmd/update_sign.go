@@ -12,7 +12,9 @@ import (
 	"github.com/blocklessnetwork/b7s-attributes/attributes"
 )
 
-func runSign(_ *cobra.Command, _ []string) error {
+func runSign(_ *cobra.Command, args []string) error {
+
+	input := args[0]
 
 	flags := flagsUpdate
 	err := flags.validate()
@@ -21,10 +23,10 @@ func runSign(_ *cobra.Command, _ []string) error {
 	}
 
 	if flags.signingKey != "" {
-		return signWithKey(flags.input, flags.signingKey)
+		return signWithKey(input, flags.signingKey)
 	}
 
-	att, err := readAttributesFile(flags.input)
+	att, err := readAttributesFile(input)
 	if err != nil {
 		return fmt.Errorf("could not read attributes from input file: %w", err)
 	}
@@ -34,7 +36,7 @@ func runSign(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("could not decode signer ID: %w", err)
 	}
 
-	err = addSignature(flags.input, att, signerID, flags.signature)
+	err = addSignature(input, att, signerID, flags.signature)
 	if err != nil {
 		return fmt.Errorf("could not add signature to attributes file: %w", err)
 	}

@@ -12,11 +12,10 @@ var updateCmd = &cobra.Command{
 	Short:        "Update an existing attributes file",
 	Long:         `Update an existing attributes file by providing a signature or an attestation.`,
 	SilenceUsage: true,
-	Args:         cobra.NoArgs,
+	Args:         cobra.ExactArgs(1),
 }
 
 func init() {
-	updateCmd.PersistentFlags().StringVarP(&flagsUpdate.input, "input", "i", "", "attribute file to update")
 	updateCmd.PersistentFlags().StringVarP(&flagsUpdate.signingKey, "signing-key", "k", "", "key to sign the attribute file with")
 
 	updateCmd.PersistentFlags().StringVar(&flagsUpdate.signerID, "signer-id", "", "signer (node) ID")
@@ -28,17 +27,12 @@ func init() {
 var flagsUpdate flagsUpdateCmd
 
 type flagsUpdateCmd struct {
-	input      string
 	signingKey string
 	signerID   string
 	signature  string
 }
 
 func (f flagsUpdateCmd) validate() error {
-
-	if f.input == "" {
-		return errors.New("input attributes file is required")
-	}
 
 	if f.signingKey != "" {
 

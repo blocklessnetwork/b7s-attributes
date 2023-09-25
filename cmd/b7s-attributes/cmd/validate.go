@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -10,11 +9,7 @@ import (
 	"github.com/blocklessnetwork/b7s-attributes/attributes"
 )
 
-var flagsPrint struct {
-	input string
-}
-
-func runPrint(_ *cobra.Command, args []string) error {
+func runValidate(_ *cobra.Command, args []string) error {
 
 	input := args[0]
 
@@ -29,12 +24,12 @@ func runPrint(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("could not read attribute file: %w", err)
 	}
 
-	data, err := json.Marshal(att)
+	err = attributes.Validate(att)
 	if err != nil {
-		return fmt.Errorf("could not encode attributes: %w", err)
+		return fmt.Errorf("attribute file is invalid: %w", err)
 	}
 
-	fmt.Printf("%s\n", data)
+	fmt.Printf("OK\n")
 
 	return nil
 }

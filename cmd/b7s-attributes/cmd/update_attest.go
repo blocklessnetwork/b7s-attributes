@@ -5,12 +5,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/blocklessnetwork/b7s-attributes/attributes"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/spf13/cobra"
+
+	"github.com/blocklessnetwork/b7s-attributes/attributes"
 )
 
-func runAttest(_ *cobra.Command, _ []string) error {
+func runAttest(_ *cobra.Command, args []string) error {
+
+	input := args[0]
 
 	flags := flagsUpdate
 	err := flags.validate()
@@ -19,10 +22,10 @@ func runAttest(_ *cobra.Command, _ []string) error {
 	}
 
 	if flags.signingKey != "" {
-		return attestWithKey(flags.input, flags.signingKey)
+		return attestWithKey(input, flags.signingKey)
 	}
 
-	att, err := readAttributesFile(flags.input)
+	att, err := readAttributesFile(input)
 	if err != nil {
 		return fmt.Errorf("could not read attributes from input file: %w", err)
 	}
@@ -32,7 +35,7 @@ func runAttest(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("could not decode signer ID: %w", err)
 	}
 
-	err = addAttestation(flags.input, att, signerID, flags.signature)
+	err = addAttestation(input, att, signerID, flags.signature)
 	if err != nil {
 		return fmt.Errorf("could not add signature to attributes file: %w", err)
 	}

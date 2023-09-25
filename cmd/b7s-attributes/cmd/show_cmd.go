@@ -11,6 +11,7 @@ var showCmd = &cobra.Command{
 	Short:        "Display current node attributes",
 	RunE:         runShow,
 	SilenceUsage: true,
+	Args:         cobra.NoArgs,
 }
 
 func init() {
