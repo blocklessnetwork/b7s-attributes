@@ -12,6 +12,7 @@ var createCmd = &cobra.Command{
 	Short:        "Export attributes to a file",
 	RunE:         runCreate,
 	SilenceUsage: true,
+	Args:         cobra.NoArgs,
 }
 
 func init() {

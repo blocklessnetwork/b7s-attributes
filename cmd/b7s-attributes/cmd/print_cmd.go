@@ -10,6 +10,7 @@ var printCmd = &cobra.Command{
 	Short:        "Print content of an attribute file",
 	RunE:         runPrint,
 	SilenceUsage: true,
+	Args:         cobra.NoArgs,
 }
 
 func init() {

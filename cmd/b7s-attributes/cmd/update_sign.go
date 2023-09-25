@@ -1,54 +1,48 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/blocklessnetwork/b7s-attributes/attributes"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/spf13/cobra"
+
+	"github.com/blocklessnetwork/b7s-attributes/attributes"
 )
 
-var flagsUpdate struct {
-	input      string
-	signingKey string
-
-	signerID  string
-	signature string
-}
-
-func runUpdate(_ *cobra.Command, _ []string) error {
+func runSign(_ *cobra.Command, _ []string) error {
 
 	flags := flagsUpdate
-	if flags.input == "" {
-		return errors.New("input attributes file is required")
+	err := flags.validate()
+	if err != nil {
+		return err
 	}
 
-	if flags.signingKey == "" && flags.signerID == "" && flags.signature == "" {
-		return errors.New("either a signing key, or (signerID + signature) combination is required")
-	}
-
-	// We only support one of two options - either provide the signing key, or ID+sig.
 	if flags.signingKey != "" {
-
-		if flags.signerID != "" || flags.signature != "" {
-			return errors.New("only one signing method is allowed - either a signing key or (signerID + signature) combination")
-		}
-
-		return runUpdateSigningKey(flags.input, flags.signingKey)
+		return signWithKey(flags.input, flags.signingKey)
 	}
 
-	if flags.signerID == "" || flags.signature == "" {
-		return errors.New("both signer ID and signature are required")
+	att, err := readAttributesFile(flags.input)
+	if err != nil {
+		return fmt.Errorf("could not read attributes from input file: %w", err)
 	}
 
-	return fmt.Errorf("TBD: not implemented")
+	signerID, err := peer.Decode(flags.signerID)
+	if err != nil {
+		return fmt.Errorf("could not decode signer ID: %w", err)
+	}
+
+	err = addSignature(flags.input, att, signerID, flags.signature)
+	if err != nil {
+		return fmt.Errorf("could not add signature to attributes file: %w", err)
+	}
+
+	return nil
 }
 
-func runUpdateSigningKey(input string, keyPath string) error {
+func signWithKey(input string, keyPath string) error {
 
 	key, err := readPrivateKey(keyPath)
 	if err != nil {
@@ -70,20 +64,30 @@ func runUpdateSigningKey(input string, keyPath string) error {
 		return fmt.Errorf("could not get signer ID: %w", err)
 	}
 
+	err = addSignature(input, att, signerID, signature)
+	if err != nil {
+		return fmt.Errorf("could not add signature to attributes file: %w", err)
+	}
+
+	return nil
+}
+
+func addSignature(name string, att attributes.Attestation, signerID peer.ID, signature string) error {
+
 	att.Signature = &attributes.Signature{
 		Signer:    signerID,
 		Signature: signature,
 	}
 
-	oldfile := input + ".old"
-	err = os.Rename(input, oldfile)
+	oldfile := name + ".old"
+	err := os.Rename(name, oldfile)
 	if err != nil {
 		return fmt.Errorf("could not backup original attributes file")
 	}
 
 	log.Printf("old attributes file moved to %v", oldfile)
 
-	out, err := os.Create(input)
+	out, err := os.Create(name)
 	if err != nil {
 		return fmt.Errorf("could not open file for writing update attributes: %w", err)
 	}
@@ -94,9 +98,10 @@ func runUpdateSigningKey(input string, keyPath string) error {
 		return fmt.Errorf("could not write updated attributes to file: %w", err)
 	}
 
-	log.Printf("updated attributes written to %v", input)
+	log.Printf("updated attributes written to %v", name)
 
 	return nil
+
 }
 
 func readPrivateKey(filepath string) (crypto.PrivKey, error) {
