@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -95,6 +96,13 @@ func w3nameCreate(rec *ipns.Record, key string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("could not create HTTP request: %w", err)
 	}
+
+	token := os.Getenv(apiToken)
+	if token == "" {
+		return "", fmt.Errorf("web3storage auth token not set")
+	}
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
 	res, err := cli.Do(req)
 	if err != nil {
