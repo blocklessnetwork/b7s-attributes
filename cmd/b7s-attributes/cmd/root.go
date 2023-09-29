@@ -36,4 +36,6 @@ func init() {
 	rootCmd.AddCommand(updateCmd)
 	rootCmd.AddCommand(printCmd)
 	rootCmd.AddCommand(validateCmd)
+	rootCmd.AddCommand(uploadCmd)
+	rootCmd.AddCommand(addNameCmd)
 }
