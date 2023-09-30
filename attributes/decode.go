@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-func Decode(data []byte) ([]Attribute, error) {
+func DecodeAttributes(data []byte) ([]Attribute, error) {
 
 	decompressed, err := decompress(data)
 	if err != nil {
 		return nil, fmt.Errorf("could not decompress attributes: %w", err)
 	}
 
-	attributes, err := deserialize(decompressed)
+	attributes, err := deserializeAttributes(decompressed)
 	if err != nil {
 		return nil, fmt.Errorf("could not deserialize attributes: %w", err)
 	}
@@ -21,7 +21,7 @@ func Decode(data []byte) ([]Attribute, error) {
 	return attributes, nil
 }
 
-func deserialize(data []byte) ([]Attribute, error) {
+func deserializeAttributes(data []byte) ([]Attribute, error) {
 
 	records := bytes.Split(data, []byte{binaryRecordSeparator})
 	out := make([]Attribute, 0, len(records))

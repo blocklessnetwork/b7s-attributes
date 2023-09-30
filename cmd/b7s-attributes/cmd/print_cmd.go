@@ -12,7 +12,3 @@ var printCmd = &cobra.Command{
 	SilenceUsage: true,
 	Args:         cobra.ExactArgs(1),
 }
-
-func init() {
-	printCmd.Flags().StringVarP(&flagsPrint.input, "input", "i", "", "input file to read attributes from")
-}

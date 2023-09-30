@@ -5,10 +5,10 @@ import (
 	"fmt"
 )
 
-// Encode will encode the list of attributes to binary format.
-func Encode(attributes []Attribute) ([]byte, error) {
+// EncodeAttributes will encode the list of attributes to binary format.
+func EncodeAttributes(attributes []Attribute) ([]byte, error) {
 
-	data, err := serialize(attributes)
+	data, err := serializeAttributes(attributes)
 	if err != nil {
 		return nil, fmt.Errorf("could not serialize attributes: %w", err)
 	}
@@ -21,7 +21,7 @@ func Encode(attributes []Attribute) ([]byte, error) {
 	return compressed, nil
 }
 
-func serialize(attributes []Attribute) ([]byte, error) {
+func serializeAttributes(attributes []Attribute) ([]byte, error) {
 
 	var buf bytes.Buffer
 	for i, attr := range attributes {

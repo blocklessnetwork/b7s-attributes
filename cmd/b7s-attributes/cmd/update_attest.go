@@ -89,7 +89,7 @@ func addAttestation(name string, att attributes.Attestation, attestorID peer.ID,
 	}
 	defer out.Close()
 
-	err = attributes.Export(out, att)
+	err = attributes.ExportAttestation(out, att)
 	if err != nil {
 		return fmt.Errorf("could not write updated attributes to file: %w", err)
 	}

@@ -9,7 +9,7 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 )
 
-func Export(writer io.Writer, att Attestation) error {
+func ExportAttestation(writer io.Writer, att Attestation) error {
 
 	err := att.Valid()
 	if err != nil {
@@ -17,7 +17,7 @@ func Export(writer io.Writer, att Attestation) error {
 	}
 
 	// Encode attribute data.
-	data, err := Encode(att.Attributes)
+	data, err := EncodeAttributes(att.Attributes)
 	if err != nil {
 		return fmt.Errorf("could not encode attribute data: %w", err)
 	}
@@ -34,7 +34,7 @@ func Export(writer io.Writer, att Attestation) error {
 
 	// Encode signature data, if found.
 	if att.Signature != nil {
-		sig, err := att.Signature.serialize()
+		sig, err := serializeSignature(*att.Signature)
 		if err != nil {
 			return fmt.Errorf("could not serialize node signature: %w", err)
 		}
@@ -45,7 +45,7 @@ func Export(writer io.Writer, att Attestation) error {
 
 	// Encode attestations, if any.
 	for i, attestor := range att.Attestors {
-		attData, err := attestor.serialize()
+		attData, err := serializeSignature(attestor)
 		if err != nil {
 			return fmt.Errorf("could not serialize attestor %v: %w", i, err)
 		}
@@ -62,7 +62,7 @@ func Export(writer io.Writer, att Attestation) error {
 	return nil
 }
 
-func Import(reader io.Reader) (Attestation, error) {
+func ImportAttestation(reader io.Reader) (Attestation, error) {
 
 	// First, read and decode attribute data.
 	attrData := make([]byte, AttributesDataLength)
@@ -76,7 +76,7 @@ func Import(reader io.Reader) (Attestation, error) {
 		return Attestation{}, fmt.Errorf("unexpected input data - too short attribute data payload")
 	}
 
-	attrs, err := Decode(attrData)
+	attrs, err := DecodeAttributes(attrData)
 	if err != nil {
 		return Attestation{}, fmt.Errorf("could not decode attribute data: %w", err)
 	}

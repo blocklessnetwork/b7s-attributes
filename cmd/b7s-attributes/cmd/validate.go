@@ -19,7 +19,7 @@ func runValidate(_ *cobra.Command, args []string) error {
 	}
 	defer f.Close()
 
-	att, err := attributes.Import(f)
+	att, err := attributes.ImportAttestation(f)
 	if err != nil {
 		return fmt.Errorf("could not read attribute file: %w", err)
 	}

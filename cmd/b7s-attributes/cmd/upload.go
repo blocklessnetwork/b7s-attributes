@@ -27,7 +27,7 @@ func runUpload(_ *cobra.Command, args []string) error {
 	defer f.Close()
 
 	// Make sure the file is vaid before uploading it.
-	att, err := attributes.Import(f)
+	att, err := attributes.ImportAttestation(f)
 	if err != nil {
 		return fmt.Errorf("could not read attribute file: %w", err)
 	}
@@ -37,7 +37,6 @@ func runUpload(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("attribute file is invalid: %w", err)
 	}
 
-	// TODO: Document the token env var.
 	token := os.Getenv(apiToken)
 	if token == "" {
 		return fmt.Errorf("web3storage auth token not set")

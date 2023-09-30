@@ -9,7 +9,7 @@ import (
 
 func SignAttributes(attrs []Attribute, key crypto.PrivKey) (string, error) {
 
-	data, err := serialize(attrs)
+	data, err := serializeAttributes(attrs)
 	if err != nil {
 		return "", fmt.Errorf("could not serialize attribute data: %w", err)
 	}

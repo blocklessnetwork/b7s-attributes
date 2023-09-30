@@ -95,7 +95,7 @@ func addSignature(name string, att attributes.Attestation, signerID peer.ID, sig
 	}
 	defer out.Close()
 
-	err = attributes.Export(out, att)
+	err = attributes.ExportAttestation(out, att)
 	if err != nil {
 		return fmt.Errorf("could not write updated attributes to file: %w", err)
 	}
@@ -129,7 +129,7 @@ func readAttributesFile(input string) (attributes.Attestation, error) {
 	}
 	defer f.Close()
 
-	att, err := attributes.Import(f)
+	att, err := attributes.ImportAttestation(f)
 	if err != nil {
 		return attributes.Attestation{}, fmt.Errorf("could not import attributes from a file: %w", err)
 	}

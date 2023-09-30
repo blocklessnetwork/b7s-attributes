@@ -53,12 +53,10 @@ func runCreate(_ *cobra.Command, _ []string) error {
 	}
 	defer f.Close()
 
-	err = attributes.Export(f, att)
+	err = attributes.ExportAttestation(f, att)
 	if err != nil {
 		return fmt.Errorf("could not write attributes to output file: %w", err)
 	}
-
-	// TODO: Add signing.
 
 	log.Printf("attributes written to %v", flagsCreate.output)
 

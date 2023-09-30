@@ -10,10 +10,6 @@ import (
 	"github.com/blocklessnetwork/b7s-attributes/attributes"
 )
 
-var flagsPrint struct {
-	input string
-}
-
 func runPrint(_ *cobra.Command, args []string) error {
 
 	input := args[0]
@@ -24,7 +20,7 @@ func runPrint(_ *cobra.Command, args []string) error {
 	}
 	defer f.Close()
 
-	att, err := attributes.Import(f)
+	att, err := attributes.ImportAttestation(f)
 	if err != nil {
 		return fmt.Errorf("could not read attribute file: %w", err)
 	}

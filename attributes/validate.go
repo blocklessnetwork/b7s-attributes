@@ -15,7 +15,7 @@ func Validate(att Attestation) error {
 
 	// If signed, verify the signature.
 	if att.Signature != nil {
-		data, err := serialize(att.Attributes)
+		data, err := serializeAttributes(att.Attributes)
 		if err != nil {
 			return fmt.Errorf("could not serialize attribute data: %w", err)
 		}

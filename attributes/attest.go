@@ -34,12 +34,16 @@ func Attest(att Attestation, key crypto.PrivKey) (string, error) {
 
 func getAttestPayload(att Attestation) ([]byte, error) {
 
-	data, err := serialize(att.Attributes)
+	if att.Signature == nil {
+		return nil, ErrNoSignature
+	}
+
+	data, err := serializeAttributes(att.Attributes)
 	if err != nil {
 		return nil, fmt.Errorf("could not serialize attribute data: %w", err)
 	}
 
-	sig, err := att.Signature.serialize()
+	sig, err := serializeSignature(*att.Signature)
 	if err != nil {
 		return nil, fmt.Errorf("could not serialize node signature: %w", err)
 	}
