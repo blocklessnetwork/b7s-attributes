@@ -42,7 +42,8 @@ func runAddName(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("could not read private key: %w", err)
 	}
 
-	path := path.FromString(args[0])
+	ipfsPath := normalizeIPFSPath(args[0])
+	path := path.FromString(ipfsPath)
 
 	validity := time.Now().Add(flags.validity)
 	caching := flags.cache
@@ -65,6 +66,18 @@ func runAddName(_ *cobra.Command, args []string) error {
 	fmt.Printf("%v\n", id)
 
 	return nil
+}
+
+// normalizeIPFSPath will make sure the path is in '/ipfs/<cid>' format.
+func normalizeIPFSPath(path string) string {
+	if strings.HasPrefix(path, "/ipfs") {
+		return path
+	}
+
+	path = strings.TrimPrefix(path, "/")
+	out := fmt.Sprintf("/ipfs/%s", path)
+
+	return out
 }
 
 func encodeKey(priv crypto.PrivKey) (string, error) {

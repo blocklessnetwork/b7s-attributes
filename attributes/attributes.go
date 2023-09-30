@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	Prefix = "B7S_"
-	Limit  = 50
+	Prefix               = "B7S_"
+	Limit                = 50
+	AttributesDataLength = 1024 // 1KiB
 
 	binaryRecordSeparator byte = 0x1F // ASCII 'Unit Separator'
 

@@ -8,10 +8,6 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 )
 
-const (
-	AttributesDataLength = 1024 // 1KiB
-)
-
 type Signature struct {
 	Signer    peer.ID
 	Signature string
