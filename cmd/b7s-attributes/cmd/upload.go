@@ -1,19 +1,14 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/web3-storage/go-w3s-client"
 
 	"github.com/blocklessnetwork/b7s-attributes/attributes"
-)
-
-const (
-	apiToken = "WEB3STORAGE_TOKEN"
+	"github.com/blocklessnetwork/b7s-attributes/w3s"
 )
 
 func runUpload(_ *cobra.Command, args []string) error {
@@ -37,23 +32,13 @@ func runUpload(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("attribute file is invalid: %w", err)
 	}
 
-	token := os.Getenv(apiToken)
-	if token == "" {
-		return fmt.Errorf("web3storage auth token not set")
-	}
-
-	client, err := w3s.NewClient(w3s.WithToken(token))
-	if err != nil {
-		return fmt.Errorf("could not create web3storage client: %w", err)
-	}
-
 	// Seek back to start of file to upload it (since we've already read it).
 	_, err = f.Seek(0, io.SeekStart)
 	if err != nil {
 		return fmt.Errorf("could not seek back to start of attributes file: %w", err)
 	}
 
-	cid, err := client.Put(context.Background(), f)
+	cid, err := w3s.Upload(f)
 	if err != nil {
 		return fmt.Errorf("could not upload attributes file: %w", err)
 	}

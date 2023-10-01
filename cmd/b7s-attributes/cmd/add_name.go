@@ -1,13 +1,8 @@
 package cmd
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -17,11 +12,12 @@ import (
 
 	"github.com/ipfs/boxo/ipns"
 	"github.com/ipfs/boxo/path"
+
+	"github.com/blocklessnetwork/b7s-attributes/w3s"
 )
 
-const (
-	w3nameAPI = "https://name.web3.storage/name"
-)
+// TODO: Sequence number management. Currently it's up to the caller to know the correct sequence number.
+// Sequence number for the IPNS record needs to be updated when the path changes.
 
 var flagsAddName struct {
 	key      string
@@ -58,7 +54,7 @@ func runAddName(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("could not encode key: %w", err)
 	}
 
-	id, err := w3nameCreate(record, encoded)
+	id, err := w3s.CreateIPNSName(record, encoded)
 	if err != nil {
 		return fmt.Errorf("could not create w3name record: %w", err)
 	}
@@ -90,55 +86,4 @@ func encodeKey(priv crypto.PrivKey) (string, error) {
 	name := ipns.NameFromPeer(id)
 
 	return name.String(), nil
-}
-
-// TODO: What is the record encoding method?
-// TODO: What is the key encoding method?
-// TODO: What is the ID returned used for?
-func w3nameCreate(rec *ipns.Record, key string) (string, error) {
-
-	cli := &http.Client{}
-
-	payload, err := ipns.MarshalRecord(rec)
-	if err != nil {
-		return "", fmt.Errorf("could not marshal IPNS record: %w", err)
-	}
-
-	enc := base64.StdEncoding.EncodeToString(payload)
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", w3nameAPI, key), strings.NewReader(enc))
-	if err != nil {
-		return "", fmt.Errorf("could not create HTTP request: %w", err)
-	}
-
-	token := os.Getenv(apiToken)
-	if token == "" {
-		return "", fmt.Errorf("web3storage auth token not set")
-	}
-
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-	res, err := cli.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("could not execute HTTP request: %w", err)
-	}
-	defer res.Body.Close()
-
-	payload, err = io.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("could not read response payload: %w", err)
-	}
-
-	var w3nameResponse struct {
-		ID string `json:"id"`
-	}
-	err = json.Unmarshal(payload, &w3nameResponse)
-	if err != nil {
-		return "", fmt.Errorf("could not unmarshal response data: %w", err)
-	}
-
-	if w3nameResponse.ID == "" {
-		return "", errors.New("received empty ID")
-	}
-
-	return w3nameResponse.ID, nil
 }
