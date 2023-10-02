@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -16,28 +17,13 @@ func runAttest(_ *cobra.Command, args []string) error {
 	input := args[0]
 
 	flags := flagsUpdate
-	err := flags.validate()
-	if err != nil {
-		return err
+	if flags.signingKey == "" {
+		return errors.New("signing key is required")
 	}
 
-	if flags.signingKey != "" {
-		return attestWithKey(input, flags.signingKey)
-	}
-
-	att, err := readAttributesFile(input)
+	err := attestWithKey(input, flags.signingKey)
 	if err != nil {
-		return fmt.Errorf("could not read attributes from input file: %w", err)
-	}
-
-	signerID, err := peer.Decode(flags.signerID)
-	if err != nil {
-		return fmt.Errorf("could not decode signer ID: %w", err)
-	}
-
-	err = addAttestation(input, att, signerID, flags.signature)
-	if err != nil {
-		return fmt.Errorf("could not add signature to attributes file: %w", err)
+		return fmt.Errorf("could not add attestation: %w", err)
 	}
 
 	return nil

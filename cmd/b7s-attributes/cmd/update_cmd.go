@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"errors"
-
 	"github.com/spf13/cobra"
 )
 
@@ -18,9 +16,6 @@ var updateCmd = &cobra.Command{
 func init() {
 	updateCmd.PersistentFlags().StringVarP(&flagsUpdate.signingKey, "signing-key", "k", "", "key to sign the attribute file with")
 
-	updateCmd.PersistentFlags().StringVar(&flagsUpdate.signerID, "signer-id", "", "signer (node) ID")
-	updateCmd.PersistentFlags().StringVar(&flagsUpdate.signature, "signature", "", "signature")
-
 	updateCmd.AddCommand(signCmd, attestCmd)
 }
 
@@ -28,24 +23,4 @@ var flagsUpdate flagsUpdateCmd
 
 type flagsUpdateCmd struct {
 	signingKey string
-	signerID   string
-	signature  string
-}
-
-func (f flagsUpdateCmd) validate() error {
-
-	if f.signingKey != "" {
-
-		if f.signerID != "" || f.signature != "" {
-			return errors.New("only one signing method is allowed - either a signing key or (signerID + signature) combination")
-		}
-
-		return nil
-	}
-
-	if f.signerID == "" || f.signature == "" {
-		return errors.New("both signer ID and signature are required")
-	}
-
-	return nil
 }

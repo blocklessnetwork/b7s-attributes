@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -17,28 +18,13 @@ func runSign(_ *cobra.Command, args []string) error {
 	input := args[0]
 
 	flags := flagsUpdate
-	err := flags.validate()
-	if err != nil {
-		return err
+	if flags.signingKey == "" {
+		return errors.New("signing key is required")
 	}
 
-	if flags.signingKey != "" {
-		return signWithKey(input, flags.signingKey)
-	}
-
-	att, err := readAttributesFile(input)
+	err := signWithKey(input, flags.signingKey)
 	if err != nil {
-		return fmt.Errorf("could not read attributes from input file: %w", err)
-	}
-
-	signerID, err := peer.Decode(flags.signerID)
-	if err != nil {
-		return fmt.Errorf("could not decode signer ID: %w", err)
-	}
-
-	err = addSignature(input, att, signerID, flags.signature)
-	if err != nil {
-		return fmt.Errorf("could not add signature to attributes file: %w", err)
+		return fmt.Errorf("could not sign attributes file: %w", err)
 	}
 
 	return nil
