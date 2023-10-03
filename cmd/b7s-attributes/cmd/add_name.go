@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/libp2p/go-libp2p/core/crypto"
@@ -38,8 +37,11 @@ func runAddName(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("could not read private key: %w", err)
 	}
 
-	ipfsPath := normalizeIPFSPath(args[0])
-	path := path.FromString(ipfsPath)
+	path := path.FromString(args[0])
+	err = path.IsValid()
+	if err != nil {
+		return fmt.Errorf("path is not valid: %w", err)
+	}
 
 	validity := time.Now().Add(flags.validity)
 	caching := flags.cache
@@ -47,6 +49,11 @@ func runAddName(_ *cobra.Command, args []string) error {
 	record, err := ipns.NewRecord(key, path, flags.sequence, validity, caching)
 	if err != nil {
 		return fmt.Errorf("could not create IPNS record: %w", err)
+	}
+
+	err = ipns.Validate(record, key.GetPublic())
+	if err != nil {
+		return fmt.Errorf("IPNS record is not valid: %w", err)
 	}
 
 	encoded, err := encodeKey(key)
@@ -59,21 +66,9 @@ func runAddName(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("could not create w3name record: %w", err)
 	}
 
-	fmt.Printf("%v\n", id)
+	fmt.Printf("%s\n", id)
 
 	return nil
-}
-
-// normalizeIPFSPath will make sure the path is in '/ipfs/<cid>' format.
-func normalizeIPFSPath(path string) string {
-	if strings.HasPrefix(path, "/ipfs") {
-		return path
-	}
-
-	path = strings.TrimPrefix(path, "/")
-	out := fmt.Sprintf("/ipfs/%s", path)
-
-	return out
 }
 
 func encodeKey(priv crypto.PrivKey) (string, error) {

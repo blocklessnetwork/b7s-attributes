@@ -43,7 +43,7 @@ func runUpload(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("could not upload attributes file: %w", err)
 	}
 
-	fmt.Printf("%v\n", cid.String())
+	fmt.Printf("%s\n", cid.String())
 
 	return nil
 }

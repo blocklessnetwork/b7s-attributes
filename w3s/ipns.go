@@ -54,7 +54,7 @@ func CreateIPNSName(rec *ipns.Record, key string) (string, error) {
 	}
 	err = json.Unmarshal(payload, &w3nameResponse)
 	if err != nil {
-		return "", fmt.Errorf("could not unmarshal response data: %w", err)
+		return "", fmt.Errorf("could not unmarshal response data (response: %s): %w", payload, err)
 	}
 
 	if w3nameResponse.ID == "" {
