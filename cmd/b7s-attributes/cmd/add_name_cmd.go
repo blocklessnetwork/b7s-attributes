@@ -24,4 +24,5 @@ func init() {
 	addNameCmd.Flags().DurationVar(&flagsAddName.validity, "validity-period", defaultValidity, "how long the record will be valid for")
 	addNameCmd.Flags().DurationVar(&flagsAddName.cache, "caching-period", defaultCaching, "how long should nodes cache this record")
 	addNameCmd.Flags().Uint64Var(&flagsAddName.sequence, "sequence", 0, "sequence number to use for the IPNS record")
+	addNameCmd.Flags().StringVar(&flagsAddName.gatewayURL, "gateway-url", "", "URL of the Blockless gateway")
 }

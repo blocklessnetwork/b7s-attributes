@@ -1,43 +1,39 @@
 package gateway
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"strings"
+	"net/url"
 
 	"github.com/ipfs/boxo/ipns"
 )
 
-const (
-	w3nameAPI = "https://name.web3.storage/name"
-)
+type attributeCreateRequest struct {
+	Name   string `json:"ipnsName"`
+	Record string `json:"ipnsRecord"`
+}
 
-func CreateIPNSName(rec *ipns.Record, key string) (string, error) {
+func CreateIPNSName(gateway *url.URL, rec *ipns.Record, key string) (string, error) {
 
-	cli := &http.Client{}
+	addr := gateway
+	addr.Path = ipnsNameEndpoint
 
-	payload, err := ipns.MarshalRecord(rec)
+	payload, err := encodeIPNSRequest(rec, key)
 	if err != nil {
-		return "", fmt.Errorf("could not marshal IPNS record: %w", err)
+		return "", fmt.Errorf("could not encode IPNS request: %w", err)
 	}
 
-	enc := base64.StdEncoding.EncodeToString(payload)
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", w3nameAPI, key), strings.NewReader(enc))
+	req, err := http.NewRequest("POST", addr.String(), bytes.NewReader(payload))
 	if err != nil {
 		return "", fmt.Errorf("could not create HTTP request: %w", err)
 	}
+	req.Header.Add("Content-Type", "application/json")
 
-	token := os.Getenv(APITokenEnv)
-	if token == "" {
-		return "", fmt.Errorf("web3storage auth token not set")
-	}
-
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
+	cli := &http.Client{}
 	res, err := cli.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("could not execute HTTP request: %w", err)
@@ -62,4 +58,25 @@ func CreateIPNSName(rec *ipns.Record, key string) (string, error) {
 	}
 
 	return w3nameResponse.ID, nil
+}
+
+func encodeIPNSRequest(rec *ipns.Record, name string) ([]byte, error) {
+
+	payload, err := ipns.MarshalRecord(rec)
+	if err != nil {
+		return nil, fmt.Errorf("could not marshal IPNS record: %w", err)
+	}
+	enc := base64.StdEncoding.EncodeToString(payload)
+
+	req := attributeCreateRequest{
+		Name:   name,
+		Record: enc,
+	}
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("could not JSON encode request: %w", err)
+	}
+
+	return data, nil
 }

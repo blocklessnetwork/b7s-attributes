@@ -34,7 +34,7 @@ func Upload(gatewayURL *url.URL, f fs.File, filename string) (cid.Cid, error) {
 	}
 
 	address := gatewayURL
-	address.Path = "/api/v1/attributes"
+	address.Path = attributeEndpoint
 
 	req, err := http.NewRequest("POST", address.String(), &buf)
 	if err != nil {
