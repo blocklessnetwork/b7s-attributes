@@ -1,4 +1,4 @@
-package w3s
+package gateway
 
 import (
 	"encoding/base64"
