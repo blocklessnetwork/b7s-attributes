@@ -11,3 +11,7 @@ var uploadCmd = &cobra.Command{
 	SilenceUsage: true,
 	Args:         cobra.ExactArgs(1),
 }
+
+func init() {
+	uploadCmd.Flags().StringVar(&flagsUpload.gatewayURL, "gateway-url", "", "URL of the Blockless gateway")
+}

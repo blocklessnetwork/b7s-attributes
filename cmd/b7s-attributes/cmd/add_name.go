@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/libp2p/go-libp2p/core/crypto"
@@ -12,17 +13,18 @@ import (
 	"github.com/ipfs/boxo/ipns"
 	"github.com/ipfs/boxo/path"
 
-	"github.com/blocklessnetwork/b7s-attributes/w3s"
+	"github.com/blocklessnetwork/b7s-attributes/gateway"
 )
 
 // TODO: Sequence number management. Currently it's up to the caller to know the correct sequence number.
 // Sequence number for the IPNS record needs to be updated when the path changes.
 
 var flagsAddName struct {
-	key      string
-	validity time.Duration
-	cache    time.Duration
-	sequence uint64
+	key        string
+	validity   time.Duration
+	cache      time.Duration
+	sequence   uint64
+	gatewayURL string
 }
 
 func runAddName(_ *cobra.Command, args []string) error {
@@ -30,6 +32,15 @@ func runAddName(_ *cobra.Command, args []string) error {
 	flags := flagsAddName
 	if flags.key == "" {
 		return errors.New("key is required")
+	}
+
+	if flags.gatewayURL == "" {
+		return errors.New("gateway URL is required")
+	}
+
+	gatewayURL, err := url.Parse(flags.gatewayURL)
+	if err != nil {
+		return fmt.Errorf("could not parse gateway URL: %w", err)
 	}
 
 	key, err := readPrivateKey(flags.key)
@@ -56,12 +67,12 @@ func runAddName(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("IPNS record is not valid: %w", err)
 	}
 
-	encoded, err := encodeKey(key)
+	ipnsName, err := ipnsNameFromKey(key)
 	if err != nil {
 		return fmt.Errorf("could not encode key: %w", err)
 	}
 
-	id, err := w3s.CreateIPNSName(record, encoded)
+	id, err := gateway.CreateIPNSName(gatewayURL, record, ipnsName)
 	if err != nil {
 		return fmt.Errorf("could not create w3name record: %w", err)
 	}
@@ -71,7 +82,7 @@ func runAddName(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func encodeKey(priv crypto.PrivKey) (string, error) {
+func ipnsNameFromKey(priv crypto.PrivKey) (string, error) {
 
 	id, err := peer.IDFromPrivateKey(priv)
 	if err != nil {
